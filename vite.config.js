@@ -1,18 +1,28 @@
 import { rmSync } from 'fs'
-import { defineConfig } from 'vite'
+import { defineConfig, normalizePath } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import electron from 'vite-plugin-electron'
 import renderer from 'vite-plugin-electron-renderer'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import copy from 'rollup-plugin-copy'
 import pkg from './package.json'
+import path from 'path'
 
-rmSync('dist-electron', { recursive: true, force: true })
+// rmSync('dist-electron', { recursive: true, force: true })
 const sourcemap = !!process.env.VSCODE_DEBUG
 const isBuild = process.argv.slice(2).includes('build')
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    copy({
+      targets: [
+        {
+          src: normalizePath(path.resolve(__dirname, 'electron/main/worker.mjs')),
+          dest: normalizePath(path.resolve(__dirname, 'dist-electron/main'))
+        }
+      ]
+    }),
     vue(),
     electron([
       {
@@ -59,14 +69,7 @@ export default defineConfig({
     renderer({
       nodeIntegration: true,
     }),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'electron/main/worker.mjs',
-          dest: 'dist-electron/main/worker.mjs'
-        }
-      ]
-    }),
+
   ],
   server: process.env.VSCODE_DEBUG ? (() => {
     const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
