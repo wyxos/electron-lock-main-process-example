@@ -13,14 +13,6 @@ const isBuild = process.argv.slice(2).includes('build')
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'electron/main/worker.mjs',
-          dest: 'dist-electron/main'
-        }
-      ]
-    }),
     vue(),
     electron([
       {
@@ -66,6 +58,14 @@ export default defineConfig({
     // Use Node.js API in the Renderer-process
     renderer({
       nodeIntegration: true,
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'electron/main/worker.mjs',
+          dest: 'dist-electron/main/worker.mjs'
+        }
+      ]
     }),
   ],
   server: process.env.VSCODE_DEBUG ? (() => {
