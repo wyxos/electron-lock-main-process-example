@@ -117,25 +117,47 @@ ipcMain.handle('open-win', (event, arg) => {
     }
 })
 
-var q = new Queue(function (input, cb) {
-    const piscina = new Piscina({
-        // The URL must be a file:// URL/
-        filename: 'file://' + path.resolve(__dirname, 'worker.mjs')
-    });
+const piscina = new Piscina({
+    // The URL must be a file:// URL/
+    filename: 'file://' + path.resolve(__dirname, 'worker.mjs'),
+    maxQueue: 'auto'
+});
 
-    piscina.run({ a: 4, b: 6 })
+const queue = new Queue(function(input, cb){
+    console.log('queued', input)
+
+    piscina.run({ a: 4, b: 6 }, {name: 'test'})
       .then(result => {
           console.log(result); // Prints 10
 
-          cb(null, result);
+          cb(null, result)
       });
+
+    // const output = await new Promise((resolve) => {
+    //     let output = 0
+    //
+    //     for(let i = 0; i < 100000001234; i++){
+    //         output++
+    //     }
+    //
+    //     resolve(output)
+    // })
+    //
+    // callback(null,  a + b + output);
 }, {
     concurrent: 4
 })
 
-ipcMain.handle('testEvent', (event) => {
-    q.push(1)
-      .on('finish', (result) => {
-          console.log('result from queue', result)
-      })
+ipcMain.handle('testEvent', (event, i) => {
+    console.log('event', i)
+
+    return new Promise((resolve) => {
+        queue.push(i, function(error, result){
+            if(error){
+                throw error
+            }
+
+            return resolve(result)
+        })
+    })
 })

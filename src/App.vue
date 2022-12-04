@@ -6,7 +6,10 @@ import {ipcRenderer} from "electron";
 
 function testFunction (){
     for(let i = 0; i < 20; i++){
-        ipcRenderer.invoke('testEvent')
+        new Promise((resolve) => setTimeout(resolve, 1000))
+            .then(() => {
+                ipcRenderer.invoke('testEvent', i)
+            })
     }
 }
 </script>

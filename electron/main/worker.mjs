@@ -1,4 +1,4 @@
-export default async ({ a, b }) => {
+export async function test ({ a, b }) {
   const output = await new Promise((resolve) => {
     let output = 0
 
