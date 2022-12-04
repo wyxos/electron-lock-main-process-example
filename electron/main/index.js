@@ -8,6 +8,8 @@
 // ├─┬ dist
 // │ └── index.html    > Electron-Renderer
 //
+import Queue from 'better-queue'
+
 process.env.DIST_ELECTRON = join(__dirname, '..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, '../public')
@@ -115,16 +117,25 @@ ipcMain.handle('open-win', (event, arg) => {
     }
 })
 
-const piscina = new Piscina({
-    // The URL must be a file:// URL/
-    filename: 'file://' + path.resolve(__dirname, 'worker.mjs')
-});
+var q = new Queue(function (input, cb) {
+    const piscina = new Piscina({
+        // The URL must be a file:// URL/
+        filename: 'file://' + path.resolve(__dirname, 'worker.mjs')
+    });
 
-ipcMain.on('testEvent', (event) => {
     piscina.run({ a: 4, b: 6 })
       .then(result => {
           console.log(result); // Prints 10
 
-          return result
+          cb(null, result);
       });
+}, {
+    concurrent: 4
+})
+
+ipcMain.handle('testEvent', (event) => {
+    q.push(1)
+      .on('finish', (result) => {
+          console.log('result from queue', result)
+      })
 })
