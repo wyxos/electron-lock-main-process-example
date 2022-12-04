@@ -1,4 +1,4 @@
-function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
+function domReady(condition = []) {
   return new Promise(resolve => {
     if (condition.includes(document.readyState)) {
       resolve(true)
@@ -13,12 +13,12 @@ function domReady(condition: DocumentReadyState[] = ['complete', 'interactive'])
 }
 
 const safeDOM = {
-  append(parent: HTMLElement, child: HTMLElement) {
+  append(parent, child) {
     if (!Array.from(parent.children).find(e => e === child)) {
       return parent.appendChild(child)
     }
   },
-  remove(parent: HTMLElement, child: HTMLElement) {
+  remove(parent, child) {
     if (Array.from(parent.children).find(e => e === child)) {
       return parent.removeChild(child)
     }

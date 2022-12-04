@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import electron from 'vite-plugin-electron'
 import renderer from 'vite-plugin-electron-renderer'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import pkg from './package.json'
 
 rmSync('dist-electron', { recursive: true, force: true })
@@ -12,11 +13,19 @@ const isBuild = process.argv.slice(2).includes('build')
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'electron/main/worker.mjs',
+          dest: 'dist-electron/main'
+        }
+      ]
+    }),
     vue(),
     electron([
       {
         // Main-Process entry file of the Electron App.
-        entry: 'electron/main/index.ts',
+        entry: 'electron/main/index.js',
         onstart(options) {
           if (process.env.VSCODE_DEBUG) {
             console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
@@ -36,9 +45,9 @@ export default defineConfig({
         },
       },
       {
-        entry: 'electron/preload/index.ts',
+        entry: 'electron/preload/index.js',
         onstart(options) {
-          // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete, 
+          // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete,
           // instead of restarting the entire Electron App.
           options.reload()
         },
