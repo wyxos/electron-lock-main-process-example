@@ -5,7 +5,9 @@ import HelloWorld from './components/HelloWorld.vue'
 import {ipcRenderer} from "electron";
 
 function testFunction (){
-    ipcRenderer.invoke('testEvent')
+    for(let i = 0; i < 20; i++){
+        ipcRenderer.send('testEvent')
+    }
 }
 </script>
 

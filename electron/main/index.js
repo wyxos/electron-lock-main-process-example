@@ -115,13 +115,16 @@ ipcMain.handle('open-win', (event, arg) => {
     }
 })
 
-ipcMain.handle('testEvent', async(event) => {
-    const piscina = new Piscina({
-        // The URL must be a file:// URL/
-        filename: 'file://' + path.resolve(__dirname, 'worker.mjs')
-    });
+const piscina = new Piscina({
+    // The URL must be a file:// URL/
+    filename: 'file://' + path.resolve(__dirname, 'worker.mjs')
+});
 
-    const result = await piscina.run({ a: 4, b: 6 });
+ipcMain.on('testEvent', (event) => {
+    piscina.run({ a: 4, b: 6 })
+      .then(result => {
+          console.log(result); // Prints 10
 
-    console.log(result); // Prints 10
+          return result
+      });
 })
