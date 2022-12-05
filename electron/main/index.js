@@ -133,7 +133,7 @@ const queue = new Queue(function(input, cb){
           cb(null, result)
       });
 
-    // const output = await new Promise((resolve) => {
+    // new Promise((resolve) => {
     //     let output = 0
     //
     //     for(let i = 0; i < 100000001234; i++){
@@ -142,8 +142,11 @@ const queue = new Queue(function(input, cb){
     //
     //     resolve(output)
     // })
-    //
-    // callback(null,  a + b + output);
+    //   .then(output => {
+    //       cb(null, output);
+    //   })
+
+
 }, {
     concurrent: 4
 })
